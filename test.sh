@@ -31,19 +31,34 @@ function assert-output {
   fi
 }
 
+
+< /dev/null parse-options -- -h | assert-output "Usage: ${bold}${0}${reset}
+
+Options:
+    ${bold}-h${reset}, ${bold}--help${reset}
+        Print this help message and exit.
+"
+
+
 {
   parse-options \
-    -f,--foo:FARG~"foo help" \
-    -b~"bar help" \
+    -f,--foo:FARG~'foo help' \
+    -b~'bar
+help' \
     --baz,-x,--qux,-y,-z \
+    @'positional args docs' \
     -- \
     -h \
     <<HELP
-This is the help message description.
-HELP
-} | assert-output "Usage: ${bold}./test.sh${reset} [${bold}-f${reset} FARG] [${bold}-b${reset}] [${bold}--baz${reset}]
 
-This is the help message description.
+ This is the help message description. 
+ 
+HELP
+} | assert-output "Usage: ${bold}${0}${reset} [${bold}-f${reset} FARG] [${bold}-b${reset}] [${bold}--baz${reset}] [${bold}--${reset}] positional args docs
+
+
+ This is the help message description. 
+ 
 
 Options:
     ${bold}-h${reset}, ${bold}--help${reset}
@@ -51,9 +66,11 @@ Options:
     ${bold}-f${reset} FARG, ${bold}--foo${reset}=FARG
         foo help
     ${bold}-b${reset}
-        bar help
+        bar
+        help
     ${bold}--baz${reset}, ${bold}-x${reset}, ${bold}--qux${reset}, ${bold}-y${reset}, ${bold}-z${reset}
 "
+
 
 parse-options \
   -f,--foo:FARG~"foo help" \
@@ -66,6 +83,7 @@ assert-equals "${options[-f]}" 'a value'
 assert-equals "${options[-x]}" ''
 assert-equals "${#arguments[@]}" 1
 assert-equals "${arguments[0]}" 'an argument'
+
 
 parse-options \
   --foo,-f:FARG \
