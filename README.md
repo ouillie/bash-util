@@ -4,6 +4,10 @@ A small library of standard functions for modern Bash scripts (v4.4+).
 
 ## Usage
 
+Download [`util.sh`].
+
+[`util.sh`]: https://raw.githubusercontent.com/ouillie/bash-util/refs/heads/main/util.sh
+
 ```bash
 source 'util.sh'
 ```
