@@ -128,10 +128,6 @@ function parse-options {
 
       parameters["${names[0]}"]="$parameter"
 
-      # Remove any backslash-escaped parentheses in the help message.
-      help="${help//\\(/(}"
-      help="${help//\\)/)}"
-
       # Pre-populate the relevant elements of the help message.
       synopsis_options+=" [${bold}${names[0]}${reset}${parameter:+ ${parameter}}]"
       option_descriptions+=("$(~describe-options~ "$parameter" "${names[@]}")")
