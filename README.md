@@ -83,7 +83,7 @@ Set a bunch of global variables with [ANSI escape sequences] for text formatting
 ### `assert-command-available`
 
 If the named command cannot be found on `$PATH`,
-log an error and exit.
+log an error and return a non-zero status.
 
 ### Logging Functions
 

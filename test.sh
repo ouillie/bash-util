@@ -34,6 +34,14 @@ function assert-output {
 }
 
 
+assert-command-available bash
+
+! assert-command-available that-would-be-crazy-if-this-were-a-command-on-some-machine \
+  2>&1 \
+  | assert-output "[${red}ERROR${reset}] ${bold}that-would-be-crazy-if-this-were-a-command-on-some-machine${reset} required but not found
+"
+
+
 < /dev/null parse-options -- -h | assert-output "Usage: ${bold}${0}${reset}
 
 Options:

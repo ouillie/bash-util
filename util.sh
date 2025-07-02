@@ -41,10 +41,10 @@ function log-debug {
 # Exit the script with an error message if the named command is not available on $PATH.
 function assert-command-available {
   local command="$1"
-  if ! which "$command" > /dev/null
+  if ! command -v "$command" > /dev/null
   then
     log-error "${bold}${command}${reset} required but not found"
-    exit 1
+    return 1
   fi
 }
 
