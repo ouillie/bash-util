@@ -2,7 +2,9 @@
 
 set -e
 
-source './bashlib.sh'
+source './util.sh'
+
+initialize-formatting
 
 # Assert that the first argument (actual) equals the seconds argument (expected).
 function assert-equals {
