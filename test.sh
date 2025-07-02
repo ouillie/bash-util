@@ -37,7 +37,7 @@ function assert-output {
 < /dev/null parse-options -- -h | assert-output "Usage: ${bold}${0}${reset}
 
 Options:
-    ${bold}-h${reset}, ${bold}--help${reset}
+    ${bold}-h${reset}, ${bold}--help${reset}, ${bold}-?${reset}
         Print this help message and exit.
 "
 
@@ -63,7 +63,7 @@ HELP
  
 
 Options:
-    ${bold}-h${reset}, ${bold}--help${reset}
+    ${bold}-h${reset}, ${bold}--help${reset}, ${bold}-?${reset}
         Print this help message and exit.
     ${bold}-f${reset} FOO-ARG, ${bold}--foo${reset}=FOO-ARG
         foo help

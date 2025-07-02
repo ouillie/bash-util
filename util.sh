@@ -55,15 +55,17 @@ function parse-options {
   local synopsis_positionals
   # Array of lines describing each option for the help message.
   local -a option_descriptions=(
-    "${bold}-h${reset}, ${bold}--help${reset}"
+    "${bold}-h${reset}, ${bold}--help${reset}, ${bold}-?${reset}"
     '    Print this help message and exit.'
   )
   # Mapping from all option names to their canonical names.
   # Pre-populate the canonical mapping with built-in options
   # to trigger the uniqueness check if the user tries to configure one.
-  local -A canonical
-  canonical['-h']=''
-  canonical['--help']=''
+  local -A canonical=(
+    ['-h']='-h'
+    ['--help']='-h'
+    ['-?']='-h'
+  )
   # Mapping from canonical option names to parameter names.
   # If an option is not parameterized, the value will be empty.
   local -A parameters
@@ -194,7 +196,7 @@ function parse-options {
   function ~parse-option~ {
     if [[ -v "canonical[$1]" ]]
     then
-      local option="${canonical[$1]}"
+      local option="${canonical["$1"]}"
       if [[ -n "${parameters["$option"]}" ]]
       then
         if [[ $# -lt 2 ]]
@@ -222,7 +224,7 @@ function parse-options {
 
   # If `errexit` is enabled, temporarily disable it.
   # The status code is used for control flow by `~parse-option~`.
-  if [[ $- == *e* ]]
+  if [[ "$-" == *e* ]]
   then
     local errexit=1
     set +e
@@ -237,7 +239,7 @@ function parse-options {
       shift
       break
     # `-h` and `--help` are hard-coded.
-    elif [[ "$1" =~ ^(-h|--help)$ ]]
+    elif [[ "$1" =~ ^(-h|--help|-\?)$ ]]
     then
       ~print-help~
       exit 0
