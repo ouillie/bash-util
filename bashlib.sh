@@ -2,9 +2,7 @@
 
 # Initialize a bunch of variables to hold text formatting escape sequences.
 # https://en.wikipedia.org/wiki/ANSI_escape_code
-if [ -t 2 ]
-then
-  # Format output only if stderr (2) is a terminal (-t).
+function initialize-formatting {
   reset="$(tput sgr0)"
   bold="$(tput bold)"
   underline="$(tput smul)"
@@ -14,18 +12,7 @@ then
   blue="$(tput setaf 4)"
   magenta="$(tput setaf 5)"
   cyan="$(tput setaf 6)"
-else
-  # Make them all empty (no formatting) if stderr is piped.
-  reset=''
-  bold=''
-  underline=''
-  red=''
-  green=''
-  yellow=''
-  blue=''
-  magenta=''
-  cyan=''
-fi
+}
 
 # Log a message to stderr with the formatted prefix `[ERROR] `.
 function log-error {
@@ -60,9 +47,6 @@ function assert-command-available {
     exit 1
   fi
 }
-
-declare -A options
-declare -a arguments
 
 # A modern version of getopts.
 function parse-options {
@@ -306,5 +290,6 @@ function parse-options {
   fi
 
   # Consolidate the positional arguments.
+  declare -ga arguments
   arguments=("${positionals[@]}" "$@")
 }
