@@ -35,22 +35,24 @@ function assert-output {
   parse-options \
     -f,--foo:FARG~"foo help" \
     -b~"bar help" \
+    --baz,-x,--qux,-y,-z \
     -- \
     -h \
     <<HELP
 This is the help message description.
 HELP
-} | assert-output "Usage: ${bold}./test.sh${reset} [${bold}-f${reset} FARG] [${bold}-b${reset}]
+} | assert-output "Usage: ${bold}./test.sh${reset} [${bold}-f${reset} FARG] [${bold}-b${reset}] [${bold}--baz${reset}]
 
 This is the help message description.
 
 Options:
-    ${bold}-h${reset}, ${bold}-?${reset}, ${bold}--help${reset}
+    ${bold}-h${reset}, ${bold}--help${reset}
         Print this help message and exit.
     ${bold}-f${reset} FARG, ${bold}--foo${reset}=FARG
         foo help
     ${bold}-b${reset}
         bar help
+    ${bold}--baz${reset}, ${bold}-x${reset}, ${bold}--qux${reset}, ${bold}-y${reset}, ${bold}-z${reset}
 "
 
 parse-options \
