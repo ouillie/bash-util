@@ -35,7 +35,7 @@ function log-info {
 # Log a message to stderr with the formatted prefix `[DEBUG] `.
 function log-debug {
   local msg="$1"
-  echo >&2 -e "[${magenta}DEBUG${magenta}] $msg"
+  echo >&2 -e "[${magenta}DEBUG${reset}] $msg"
 }
 
 # Exit the script with an error message if the named command is not available on $PATH.
