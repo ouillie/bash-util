@@ -121,6 +121,12 @@ function parse-options {
         then
           log-error "Non-unique option name: ${bold}${name}${reset}"
           return 1
+        # Options are expected to conform to GNU-style syntax.
+        elif ! [[ "$name" =~ ^(-.|--.+)$ ]]
+        then
+          log-error "Invalid option: ${bold}${name}${reset}"
+          log-info "Options must match the regex ${bold}-.|--.+${reset}"
+          return 1
         fi
         # The first variant is always the canonical form.
         canonical["$name"]="${names[0]}"
