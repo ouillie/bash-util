@@ -4,8 +4,6 @@ set -e
 
 source './util.sh'
 
-initialize-formatting
-
 # Assert that the first argument (actual) equals the seconds argument (expected).
 function assert-equals {
   if [[ "$1" != "$2" ]]
@@ -34,15 +32,39 @@ function assert-output {
 }
 
 
+assert-equals "$reset" ''
+assert-equals "$bold" ''
+assert-equals "$underline" ''
+assert-equals "$red" ''
+assert-equals "$green" ''
+assert-equals "$yellow" ''
+assert-equals "$blue" ''
+assert-equals "$magenta" ''
+assert-equals "$cyan" ''
+
+initialize-formatting
+
+assert-equals "$reset" "$(tput sgr0)"
+assert-equals "$bold" "$(tput bold)"
+assert-equals "$underline" "$(tput smul)"
+assert-equals "$red" "$(tput setaf 1)"
+assert-equals "$green" "$(tput setaf 2)"
+assert-equals "$yellow" "$(tput setaf 3)"
+assert-equals "$blue" "$(tput setaf 4)"
+assert-equals "$magenta" "$(tput setaf 5)"
+assert-equals "$cyan" "$(tput setaf 6)"
+
+
 assert-command-available bash
 
 ! assert-command-available that-would-be-crazy-if-this-were-a-command-on-some-machine \
-  2>&1 \
-  | assert-output "[${red}ERROR${reset}] ${bold}that-would-be-crazy-if-this-were-a-command-on-some-machine${reset} required but not found
+  2>&1 | assert-output "\
+[${red}ERROR${reset}] ${bold}that-would-be-crazy-if-this-were-a-command-on-some-machine${reset} required but not found
 "
 
 
-< /dev/null parse-options -- -h | assert-output "Usage: ${bold}${0}${reset}
+< /dev/null parse-options -- -h | assert-output "\
+Usage: ${bold}${0}${reset}
 
 Options:
     ${bold}-h${reset}, ${bold}--help${reset}, ${bold}-?${reset}
@@ -57,14 +79,14 @@ Options:
 help' \
     --baz,-x,--qux,-y,-z \
     @'positional args docs' \
-    -- \
-    -h \
+    -- -h \
     <<HELP
 
  This is the help message description. 
  
 HELP
-} | assert-output "Usage: ${bold}${0}${reset} [${bold}-f${reset} FOO-ARG] [${bold}-b${reset}] [${bold}--baz${reset}] [${bold}--${reset}] positional args docs
+} | assert-output "\
+Usage: ${bold}${0}${reset} [${bold}-f${reset} FOO-ARG] [${bold}-b${reset}] [${bold}--baz${reset}] [${bold}--${reset}] positional args docs
 
 
  This is the help message description. 
@@ -86,21 +108,71 @@ parse-options \
   -f,--foo:FARG~"foo help" \
   -b~"bar help" \
   -x \
-  -- \
-  --foo='a value' 'an argument' -x
+  -- --foo='a value' 'an argument' -x 'another argument'
 assert-equals "${#options[@]}" 2
 assert-equals "${options[-f]}" 'a value'
 assert-equals "${options[-x]}" ''
-assert-equals "${#arguments[@]}" 1
+assert-equals "${#arguments[@]}" 2
 assert-equals "${arguments[0]}" 'an argument'
+assert-equals "${arguments[1]}" 'another argument'
 
 
 parse-options \
   --foo,-f:FARG \
   -b \
-  -- \
-  -bf 'a value'
+  -- -bf 'a value'
 assert-equals "${#options[@]}" 2
 assert-equals "${options[--foo]}" 'a value'
 assert-equals "${options[-b]}" ''
 assert-equals "${#arguments[@]}" 0
+
+
+parse-options \
+  +foo,-f:FARG \
+  -- -h \
+  2>&1 | assert-output "\
+[${red}ERROR${reset}] Invalid option: ${bold}+foo${reset}
+[${blue}INFO${reset}] Options must match the regex ${bold}-.|--.+${reset}
+"
+
+
+parse-options \
+  --foo:ARG \
+  -- --foo \
+  2>&1 | assert-output "\
+[${red}ERROR${reset}] Missing argument for ${bold}--foo${reset}
+Usage: ${bold}${0}${reset} [${bold}--foo${reset} ARG]
+
+Options:
+    ${bold}-h${reset}, ${bold}--help${reset}, ${bold}-?${reset}
+        Print this help message and exit.
+    ${bold}--foo${reset}=ARG
+"
+
+
+parse-options \
+  --foo \
+  -- --foo=surprise \
+  2>&1 | assert-output "\
+[${red}ERROR${reset}] Unexpected argument for ${bold}--foo${reset}
+Usage: ${bold}${0}${reset} [${bold}--foo${reset}]
+
+Options:
+    ${bold}-h${reset}, ${bold}--help${reset}, ${bold}-?${reset}
+        Print this help message and exit.
+    ${bold}--foo${reset}
+"
+
+
+parse-options \
+  --foo \
+  -- --bar \
+  2>&1 | assert-output "\
+[${red}ERROR${reset}] Unrecognized option: ${bold}--bar${reset}
+Usage: ${bold}${0}${reset} [${bold}--foo${reset}]
+
+Options:
+    ${bold}-h${reset}, ${bold}--help${reset}, ${bold}-?${reset}
+        Print this help message and exit.
+    ${bold}--foo${reset}
+"
