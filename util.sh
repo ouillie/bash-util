@@ -294,6 +294,24 @@ function parse-options {
   fi
 
   # Consolidate the positional arguments.
-  declare -ga arguments
-  arguments=("${positionals[@]}" "$@")
+  declare -ga arguments=("${positionals[@]}" "$@")
+}
+
+function assert-option-specified {
+  local name="$1"
+  if ! [[ -v "options[$name]" ]]
+  then
+    log-error "Missing required option: ${bold}${name}${reset}"
+    return 1
+  fi
+}
+
+function assert-option-conflict {
+  local name="$1"
+  local conflict="$2"
+  if [[ -v "options[$name]" ]] && [[ -v "options[$conflict]" ]]
+  then
+    log-error "Option ${bold}${name}${reset} conflicts with ${bold}${conflict}${reset}"
+    return 1
+  fi
 }

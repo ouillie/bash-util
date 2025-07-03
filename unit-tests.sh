@@ -32,6 +32,10 @@ function assert-output {
 }
 
 
+# Fail fast if anything causes an error for the happy-path tests.
+set -o pipefail
+
+
 assert-equals "$reset" ''
 assert-equals "$bold" ''
 assert-equals "$underline" ''
@@ -115,7 +119,11 @@ assert-equals "${options[-x]}" ''
 assert-equals "${#arguments[@]}" 2
 assert-equals "${arguments[0]}" 'an argument'
 assert-equals "${arguments[1]}" 'another argument'
-
+assert-option-specified '-f'
+! assert-option-specified '-b' 2>&1 | assert-output "\
+[${red}ERROR${reset}] Missing required option: ${bold}-b${reset}
+"
+assert-option-specified '-x'
 
 parse-options \
   --foo,-f:FARG \
@@ -125,6 +133,11 @@ assert-equals "${#options[@]}" 2
 assert-equals "${options[--foo]}" 'a value'
 assert-equals "${options[-b]}" ''
 assert-equals "${#arguments[@]}" 0
+
+
+# Disable automatic failure inside pipes for the rest of these tests,
+# which exercise failure modes.
+set +o pipefail
 
 
 parse-options \
