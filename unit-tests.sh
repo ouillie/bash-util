@@ -46,6 +46,7 @@ assert-equals "$blue" ''
 assert-equals "$magenta" ''
 assert-equals "$cyan" ''
 
+export TERM='screen-256color'
 initialize-formatting
 
 assert-equals "$reset" "$(tput sgr0)"
@@ -79,10 +80,10 @@ Options:
 {
   parse-options \
     -f,--foo:FOO-ARG~'foo help' \
-    -b~'bar
+    -b~' bar 
 help' \
     --baz,-x,--qux,-y,-z \
-    @'positional args docs' \
+    @' positional args docs ' \
     -- -h \
     <<HELP
 
@@ -90,7 +91,7 @@ help' \
  
 HELP
 } | assert-output "\
-Usage: ${bold}${0}${reset} [${bold}-f${reset} FOO-ARG] [${bold}-b${reset}] [${bold}--baz${reset}] [${bold}--${reset}] positional args docs
+Usage: ${bold}${0}${reset} [${bold}-f${reset} FOO-ARG] [${bold}-b${reset}] [${bold}--baz${reset}] [${bold}--${reset}]  positional args docs 
 
 
  This is the help message description. 
@@ -102,7 +103,7 @@ Options:
     ${bold}-f${reset} FOO-ARG, ${bold}--foo${reset}=FOO-ARG
         foo help
     ${bold}-b${reset}
-        bar
+         bar 
         help
     ${bold}--baz${reset}, ${bold}-x${reset}, ${bold}--qux${reset}, ${bold}-y${reset}, ${bold}-z${reset}
 "
@@ -112,13 +113,13 @@ parse-options \
   -f,--foo:FARG~"foo help" \
   -b~"bar help" \
   -x \
-  -- --foo='a value' 'an argument' -x 'another argument'
+  -- --foo='a value' 'an argument' -x -- -b
 assert-equals "${#options[@]}" 2
 assert-equals "${options[-f]}" 'a value'
 assert-equals "${options[-x]}" ''
 assert-equals "${#arguments[@]}" 2
 assert-equals "${arguments[0]}" 'an argument'
-assert-equals "${arguments[1]}" 'another argument'
+assert-equals "${arguments[1]}" '-b'
 assert-option-specified '-f'
 ! assert-option-specified '-b' 2>&1 | assert-output "\
 [${red}ERROR${reset}] Missing required option: ${bold}-b${reset}
